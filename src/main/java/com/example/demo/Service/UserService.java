@@ -20,13 +20,13 @@ public class UserService {
     @Autowired
     private UserRepo userRepo;
 
-    public UserDTO saveUser(UserRegistration userRegistration) {
+    public String saveUser(UserRegistration userRegistration) {
 String hashedPassword = new BCryptPasswordEncoder().encode(userRegistration.getUserPassword());
         User userEntity = new User(null, userRegistration.getUserName(), userRegistration.getUserEmail(),hashedPassword);
 
         User savedUser = userRepo.save(userEntity);
 
-        return new UserDTO(savedUser.getUserId(), savedUser.getUserName(), savedUser.getUserEmail());
+        return "The user "+savedUser.getUserName()+" has been created ";
     }
 
 
@@ -39,31 +39,33 @@ String hashedPassword = new BCryptPasswordEncoder().encode(userRegistration.getU
     }
 
     // Delete user by ID
-    public void deleteByID(Long id) {
+    public String deleteByID(Long id) {
         if (!userRepo.existsById(id)) {
             throw new NoSuchElementException("No user found with ID: " + id);
         }
         userRepo.deleteById(id);
+        return "The user id "+id+" has been deleted";
     }
 
     // Delete user by name
     @Transactional
-    public void deleteByName(String userName) {
+    public String deleteByName(String userName) {
         Optional<User> user = userRepo.findByUserName(userName);
         if (user.isEmpty()) {
             throw new NoSuchElementException("No user found with name: " + userName);
         }
         userRepo.deleteByUserName(userName);
+        return "The user name "+userName+ " has been deleted";
     }
 
     // Update user by ID
-    public UserDTO updateById(Long id, UserDTO userDTO) {
+    public String updateById(Long id, UserDTO userDTO) {
         return userRepo.findById(id)
                 .map(user -> {
                     user.setUserName(userDTO.getUserName());
                     user.setUserEmail(userDTO.getUserEmail());
                     userRepo.save(user);
-                    return new UserDTO(user.getUserId(), user.getUserName(), user.getUserEmail());
+                    return "The user Id "+ id+" has been updated";
                 }).orElseThrow(() -> new NoSuchElementException("No user found with ID: " + id));
     }
 

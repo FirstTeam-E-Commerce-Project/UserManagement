@@ -19,9 +19,9 @@ public class UserController {
     private UserService userService;
 //save the user
 @PostMapping("/saveUser")
-public ResponseEntity<UserDTO> saveUser(@RequestBody UserRegistration userRegistration) {
-    UserDTO savedUserDTO = userService.saveUser(userRegistration);  // Fix variable name & type
-    return ResponseEntity.status(HttpStatus.CREATED).body(savedUserDTO);
+public ResponseEntity<String> saveUser(@RequestBody UserRegistration userRegistration) {
+    String savedUser = userService.saveUser(userRegistration);  // Fix variable name & type
+    return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
 }
 
     //Get the user byId
@@ -40,20 +40,21 @@ public ResponseEntity<UserDTO> saveUser(@RequestBody UserRegistration userRegist
     }
 //Delete data using UserId
     @DeleteMapping("/deleteUserById/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
-        userService.deleteByID(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> deleteById(@PathVariable Long id) {
+        String deleteByID = userService.deleteByID(id);
+        return ResponseEntity.ok(deleteByID);
     }
 //DeleteUser byName
     @DeleteMapping("/deleteUserByName/{userName}")
-    public ResponseEntity<Void> deleteByName(@PathVariable String userName) {
-        userService.deleteByName(userName);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> deleteByName(@PathVariable String userName) {
+        String deleteByName = userService.deleteByName(userName);
+        return ResponseEntity.ok(deleteByName);
     }
 //Update data ById
     @PutMapping("/updateById/{id}")
-    public ResponseEntity<UserDTO> updateById(@PathVariable Long id, @RequestBody UserDTO userDTO) {
-        return ResponseEntity.ok(userService.updateById(id, userDTO));
+    public ResponseEntity<String> updateById(@PathVariable Long id, @RequestBody UserDTO userDTO) {
+        String updateById = userService.updateById(id, userDTO);
+        return ResponseEntity.ok(updateById);
     }
 //Get All Users
     @GetMapping("/getUsers")
