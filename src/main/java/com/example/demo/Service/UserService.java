@@ -69,7 +69,7 @@ String hashedPassword = new BCryptPasswordEncoder().encode(userRegistration.getU
                 }).orElseThrow(() -> new NoSuchElementException("No user found with ID: " + id));
     }
 
-    // Get all users
+    // Get all users and convert into the DTO
     public List<UserDTO> getAllUsers() {
         return userRepo.findAllUsers()
                 .stream()
