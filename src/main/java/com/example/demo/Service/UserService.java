@@ -1,0 +1,79 @@
+package com.example.demo.Service;
+
+import com.example.demo.DTO.UserDTO;
+import com.example.demo.Entity.User;
+
+import com.example.demo.Entity.UserRegistration;
+import com.example.demo.Repo.UserRepo;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+public class UserService {
+
+    @Autowired
+    private UserRepo userRepo;
+
+    public String saveUser(UserRegistration userRegistration) {
+String hashedPassword = new BCryptPasswordEncoder().encode(userRegistration.getUserPassword());
+        User userEntity = new User(null, userRegistration.getUserName(), userRegistration.getUserEmail(),hashedPassword);
+
+        User savedUser = userRepo.save(userEntity);
+
+        return "The user "+savedUser.getUserName()+" has been created ";
+    }
+
+
+    public Optional<UserDTO> getUser(Long id) {
+        return userRepo.findById(id).map(user -> new UserDTO(user.getUserId(), user.getUserName(), user.getUserEmail()));
+    }
+
+    public Optional<UserDTO> getUserByName(String name) {
+        return userRepo.findByUserName(name).map(user -> new UserDTO(user.getUserId(), user.getUserName(), user.getUserEmail()));
+    }
+
+    // Delete user by ID
+    public String deleteByID(Long id) {
+        if (!userRepo.existsById(id)) {
+            throw new NoSuchElementException("No user found with ID: " + id);
+        }
+        userRepo.deleteById(id);
+        return "The user id "+id+" has been deleted";
+    }
+
+    // Delete user by name
+    @Transactional
+    public String deleteByName(String userName) {
+        Optional<User> user = userRepo.findByUserName(userName);
+        if (user.isEmpty()) {
+            throw new NoSuchElementException("No user found with name: " + userName);
+        }
+        userRepo.deleteByUserName(userName);
+        return "The user name "+userName+ " has been deleted";
+    }
+
+    // Update user by ID
+    public String updateById(Long id, UserDTO userDTO) {
+        return userRepo.findById(id)
+                .map(user -> {
+                    user.setUserName(userDTO.getUserName());
+                    user.setUserEmail(userDTO.getUserEmail());
+                    userRepo.save(user);
+                    return "The user Id "+ id+" has been updated";
+                }).orElseThrow(() -> new NoSuchElementException("No user found with ID: " + id));
+    }
+
+    // Get all users and convert into the DTO
+    public List<UserDTO> getAllUsers() {
+        return userRepo.findAllUsers()
+                .stream()
+                .map(user -> new UserDTO(user.getUserId(), user.getUserName(), user.getUserEmail()))
+                .collect(Collectors.toList());
+    }
+}
